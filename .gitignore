@@ -32,6 +32,8 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
+*.properties
+*.yml
 
 ### VS Code ###
 .vscode/
