@@ -3,6 +3,7 @@ package lte.backend.member.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lte.backend.common.BaseTimeEntity;
@@ -39,4 +40,15 @@ public class Member extends BaseTimeEntity {
     @NotNull
     @Column(nullable = false)
     private MemberRole role;
+
+    @Builder
+    public Member(Long id, String username, String password, String nickname, String profileUrl, boolean isDeleted, MemberRole role) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.profileUrl = profileUrl;
+        this.isDeleted = isDeleted;
+        this.role = role;
+    }
 }
