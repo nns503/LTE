@@ -25,6 +25,7 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+**/src/main/java/lte/backend/TestController.java
 
 ### NetBeans ###
 /nbproject/private/
@@ -34,6 +35,5 @@ out/
 /.nb-gradle/
 *.properties
 *.yml
-
 ### VS Code ###
 .vscode/
