@@ -1,12 +1,17 @@
 package lte.backend.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import lte.backend.auth.domain.AuthMember;
 import lte.backend.auth.dto.request.JoinRequest;
 import lte.backend.auth.exception.NicknameDuplicationException;
 import lte.backend.auth.exception.UsernameDuplicationException;
-import lte.backend.auth.repository.MemberRepository;
+import lte.backend.member.exception.MemberNotFoundException;
+import lte.backend.member.repository.MemberRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.member.domain.MemberRole;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class AuthService {
+public class AuthService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -37,6 +42,14 @@ public class AuthService {
                 .build();
 
         memberRepository.save(member);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(MemberNotFoundException::new);
+
+        return new AuthMember(member);
     }
 
     private void checkDuplicateNickname(String nickname) {
