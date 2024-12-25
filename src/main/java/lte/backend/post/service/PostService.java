@@ -66,7 +66,6 @@ public class PostService {
     public void delete(Long memberId, Long postId) {
         Post post = postRepository.findByIdAndIsDeletedFalse(postId)
                 .orElseThrow(PostNotFoundException::new);
-
         validatePostAuthor(memberId, post);
 
         postRepository.delete(post);
@@ -76,6 +75,7 @@ public class PostService {
         Post post = postRepository.findByIdAndIsDeletedFalse(postId)
                 .orElseThrow(PostNotFoundException::new);
 
+        // 이웃 보기 기능
         post.incrementViewCount();
 
         return GetPostResponse.of(post, post.getMember());
@@ -88,7 +88,7 @@ public class PostService {
     }
 
     private void validateAutoDeletedTimeNotFuture(LocalDateTime autoDeletedTime) {
-        if (!autoDeletedTime.isAfter(LocalDateTime.now())) {
+        if (autoDeletedTime != null && !autoDeletedTime.isAfter(LocalDateTime.now())) {
             throw new InvalidDeletedTimeBadRequestException("자동 삭제 시간을 다시 설정해주세요.");
         }
     }
