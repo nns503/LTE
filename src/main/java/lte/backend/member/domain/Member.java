@@ -7,9 +7,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lte.backend.common.BaseTimeEntity;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
+@SQLDelete(sql = "UPDATE members SET is_deleted = true WHERE id = ?")
 @Entity
 @Table(name = "MEMBERS")
 public class Member extends BaseTimeEntity {
@@ -33,7 +37,7 @@ public class Member extends BaseTimeEntity {
     private String profileUrl;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
     @Enumerated(EnumType.STRING)
@@ -50,5 +54,13 @@ public class Member extends BaseTimeEntity {
         this.profileUrl = profileUrl;
         this.isDeleted = isDeleted;
         this.role = role;
+    }
+
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }

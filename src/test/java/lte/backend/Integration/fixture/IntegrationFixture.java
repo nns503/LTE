@@ -4,7 +4,7 @@ import lte.backend.member.domain.Member;
 import lte.backend.member.domain.MemberRole;
 import lte.backend.post.domain.Post;
 
-public class IntergrationFixture {
+public class IntegrationFixture {
 
     public static final Member testMember = Member.builder()
             .id(1L)

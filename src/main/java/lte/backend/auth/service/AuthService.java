@@ -5,10 +5,10 @@ import lte.backend.auth.domain.AuthMember;
 import lte.backend.auth.dto.request.JoinRequest;
 import lte.backend.auth.exception.NicknameDuplicationException;
 import lte.backend.auth.exception.UsernameDuplicationException;
-import lte.backend.member.exception.MemberNotFoundException;
-import lte.backend.member.repository.MemberRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.member.domain.MemberRole;
+import lte.backend.member.exception.MemberNotFoundException;
+import lte.backend.member.repository.MemberRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,8 +29,8 @@ public class AuthService implements UserDetailsService {
         String username = request.username();
         String nickname = request.nickname();
 
-        checkDuplicateUsername(username);
-        checkDuplicateNickname(nickname);
+        validateDuplicateUsername(username);
+        validateDuplicateNickname(nickname);
 
         Member member = Member.builder()
                 .username(username)
@@ -52,13 +52,13 @@ public class AuthService implements UserDetailsService {
         return new AuthMember(member);
     }
 
-    private void checkDuplicateNickname(String nickname) {
+    private void validateDuplicateNickname(String nickname) {
         if(memberRepository.existsByNickname(nickname)) {
             throw new NicknameDuplicationException();
         }
     }
 
-    private void checkDuplicateUsername(String username) {
+    private void validateDuplicateUsername(String username) {
         if(memberRepository.existsByUsername(username)) {
             throw new UsernameDuplicationException();
         }

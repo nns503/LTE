@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 import lte.backend.common.BaseTimeEntity;
 import lte.backend.member.domain.Member;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
 @SQLDelete(sql = "UPDATE posts SET is_deleted = true WHERE id = ?")
 @Entity
 @Table(name = "POSTS")

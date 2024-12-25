@@ -51,7 +51,7 @@ public class PostService {
 
     @Transactional
     public UpdatePostResponse update(UpdatePostRequest request, Long memberId, Long postId) {
-        Post post = postRepository.findByIdAndIsDeletedFalse(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         validatePostAuthor(memberId, post);
@@ -64,7 +64,7 @@ public class PostService {
 
     @Transactional
     public void delete(Long memberId, Long postId) {
-        Post post = postRepository.findByIdAndIsDeletedFalse(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
         validatePostAuthor(memberId, post);
 
@@ -72,7 +72,7 @@ public class PostService {
     }
 
     public GetPostResponse getPost(Long postId) {
-        Post post = postRepository.findByIdAndIsDeletedFalse(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         // 이웃 보기 기능

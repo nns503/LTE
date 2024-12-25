@@ -9,4 +9,8 @@ public class NicknameDuplicationException extends DuplicationLTEException {
     public NicknameDuplicationException() {
         super(DEFAULT_MESSAGE);
     }
+
+    public NicknameDuplicationException(String message) {
+        super(message);
+    }
 }

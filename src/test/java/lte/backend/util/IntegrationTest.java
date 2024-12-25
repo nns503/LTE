@@ -1,6 +1,8 @@
 package lte.backend.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lte.backend.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +21,8 @@ public class IntegrationTest {
     protected MockMvc mvc;
     @Autowired
     protected ObjectMapper objectMapper;
+    @PersistenceContext
+    protected EntityManager entityManager;
 
     @Autowired
     protected MemberRepository memberRepository;

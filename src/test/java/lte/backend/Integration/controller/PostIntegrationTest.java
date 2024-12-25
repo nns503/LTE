@@ -1,10 +1,11 @@
 package lte.backend.Integration.controller;
 
-import lte.backend.Integration.fixture.IntergrationFixture;
+import lte.backend.Integration.fixture.IntegrationFixture;
 import lte.backend.member.domain.Member;
 import lte.backend.post.domain.Post;
 import lte.backend.post.dto.request.CreatePostRequest;
 import lte.backend.post.dto.request.UpdatePostRequest;
+import lte.backend.post.dto.response.CreatePostResponse;
 import lte.backend.post.dto.response.GetPostResponse;
 import lte.backend.post.repository.PostRepository;
 import lte.backend.util.IntegrationTest;
@@ -32,12 +33,18 @@ public class PostIntegrationTest extends IntegrationTest {
         CreatePostRequest request = getCreatePostRequest();
         String body = objectMapper.writeValueAsString(request);
 
-        mvc.perform(post("/api/posts")
+        MvcResult result = mvc.perform(post("/api/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn();
 
-        assertThat(memberRepository.count()).isEqualTo(1);
+        CreatePostResponse response = JsonMvcResponseMapper.parseJsonResponse(result, CreatePostResponse.class);
+        Post createdPost = postRepository.findById(response.postId()).orElseThrow(AssertionError::new);
+        assertThat(createdPost.getTitle()).isEqualTo(request.title());
+        assertThat(createdPost.getContent()).isEqualTo(request.content());
+        assertThat(createdPost.isPrivate()).isEqualTo(request.isPrivate());
+        assertThat(createdPost.getAutoDeleted()).isEqualTo(request.autoDeleted());
     }
 
     @Test
@@ -70,10 +77,13 @@ public class PostIntegrationTest extends IntegrationTest {
 
         mvc.perform(delete("/api/posts/" + savedPost.getId()))
                 .andExpect(status().isOk());
+        String sql = "SELECT * FROM posts WHERE id = :id";
+        Post deletedPost = (Post) entityManager.createNativeQuery(sql, Post.class)
+                .setParameter("id", savedPost.getId())
+                .getSingleResult();
 
-        assertThat(postRepository.count()).isEqualTo(1);
-        assertThat(postRepository.findById(savedPost.getId()).isPresent()).isTrue();
-        assertThat(postRepository.findById(savedPost.getId()).get().isDeleted()).isTrue();
+        assertThat(postRepository.count()).isEqualTo(0);
+        assertThat(deletedPost.isDeleted()).isTrue();
     }
 
     @Test
@@ -118,7 +128,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     private Post savePost(Member member) {
-        Post post = IntergrationFixture.testPost(member);
+        Post post = IntegrationFixture.testPost(member);
         return postRepository.save(post);
     }
 }
