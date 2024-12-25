@@ -28,7 +28,7 @@ public record JoinRequest(
         @Size(min = 3, max = 6, message = "길이는 3자에서 6자 이내로 작성해주세요")
         String nickname,
 
-        @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg", nullable = true)
         String profileUrl
 ) {
 }
