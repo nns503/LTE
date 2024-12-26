@@ -13,9 +13,15 @@ import lte.backend.util.JsonMvcResponseMapper;
 import lte.backend.util.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -92,6 +98,7 @@ public class PostIntegrationTest extends IntegrationTest {
     void getPost() throws Exception {
         Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
         Post savedPost = savePost(member);
+        int firstViewCount = savedPost.getViewCount();
 
         MvcResult result = mvc.perform(get("/api/posts/" + savedPost.getId()))
                 .andExpect(status().isOk())
@@ -107,21 +114,63 @@ public class PostIntegrationTest extends IntegrationTest {
         assertThat(response.createdAt()).isEqualTo(savedPost.getCreatedAt());
         assertThat(response.nickname()).isEqualTo(savedPost.getMember().getNickname());
         assertThat(response.memberId()).isEqualTo(savedPost.getMember().getId());
+
+        assertThat(response.viewCount()).isEqualTo(firstViewCount + 1);
     }
 
-    private UpdatePostRequest getUpdatePostRequest() {
-        return new UpdatePostRequest(
-                "테스트수정제목",
-                "테스트수정내용",
+    @ParameterizedTest
+    @WithMockCustomUser
+    @MethodSource("getCreatePostParameter")
+    @DisplayName("ERROR : 게시글을 생성 - 요청에 대한 Validation 예외")
+    void createPost_Error_Validation(CreatePostRequest request) throws Exception {
+        String body = objectMapper.writeValueAsString(request);
+
+        mvc.perform(post("/api/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockCustomUser
+    @DisplayName("ERROR : 게시글을 생성 - 자동 삭제 시간 오류")
+    void createPost_Error_AutoDeleteTime() throws Exception {
+        CreatePostRequest request = new CreatePostRequest(
+                "테스트제목",
+                "테스트내용",
                 false,
-                null
+                LocalDateTime.now().minusHours(1)
         );
+        String body = objectMapper.writeValueAsString(request);
+
+        mvc.perform(post("/api/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
     }
 
     private CreatePostRequest getCreatePostRequest() {
         return new CreatePostRequest(
                 "테스트제목",
                 "테스트내용",
+                false,
+                null
+        );
+    }
+
+    private static Stream<Arguments> getCreatePostParameter() {
+        return Stream.of(
+                Arguments.of(new CreatePostRequest("", "테스트내용", false, null)),
+                Arguments.of(new CreatePostRequest("123456789101112131415161718192021222324252627282930",
+                        "테스트내용", false, null)),
+                Arguments.of(new CreatePostRequest("테스트제목", "", false, null))
+        );
+    }
+
+    private UpdatePostRequest getUpdatePostRequest() {
+        return new UpdatePostRequest(
+                "테스트수정제목",
+                "테스트수정내용",
                 false,
                 null
         );
