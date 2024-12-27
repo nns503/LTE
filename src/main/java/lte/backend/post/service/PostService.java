@@ -5,15 +5,20 @@ import lte.backend.member.domain.Member;
 import lte.backend.member.exception.MemberNotFoundException;
 import lte.backend.member.repository.MemberRepository;
 import lte.backend.post.domain.Post;
+import lte.backend.post.dto.PostDTO;
 import lte.backend.post.dto.request.CreatePostRequest;
+import lte.backend.post.dto.request.GetPostsRequest;
 import lte.backend.post.dto.request.UpdatePostRequest;
 import lte.backend.post.dto.response.CreatePostResponse;
 import lte.backend.post.dto.response.GetPostResponse;
+import lte.backend.post.dto.response.GetPostsResponse;
 import lte.backend.post.dto.response.UpdatePostResponse;
 import lte.backend.post.exception.ForbiddenModificationException;
 import lte.backend.post.exception.InvalidDeletedTimeBadRequestException;
 import lte.backend.post.exception.PostNotFoundException;
 import lte.backend.post.repository.PostRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,14 +76,20 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    @Transactional
     public GetPostResponse getPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
-        // 이웃 보기 기능
+        // 이웃 보기 기능 추가 예정
         post.incrementViewCount();
 
         return GetPostResponse.of(post, post.getMember());
+    }
+
+    public GetPostsResponse getPosts(Pageable pageable, GetPostsRequest request) {
+        Slice<PostDTO> slicePosts = postRepository.getPosts(pageable, request.searchBy(), request.searchValue(), request.sortBy());
+        return GetPostsResponse.from(slicePosts);
     }
 
     private void validatePostAuthor(Long memberId, Post post) {

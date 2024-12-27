@@ -118,6 +118,24 @@ public class PostIntegrationTest extends IntegrationTest {
         assertThat(response.viewCount()).isEqualTo(firstViewCount + 1);
     }
 
+    @Test
+    @WithMockCustomUser
+    @DisplayName("OK : 여러번 조회 시 조회수가 증가")
+    void validateUpdateViewCount() throws Exception {
+        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
+        Post savedPost = savePost(member);
+        int firstViewCount = savedPost.getViewCount();
+
+        mvc.perform(get("/api/posts/" + savedPost.getId()))
+                .andExpect(status().isOk());
+        MvcResult result = mvc.perform(get("/api/posts/" + savedPost.getId()))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        GetPostResponse response = JsonMvcResponseMapper.parseJsonResponse(result, GetPostResponse.class);
+        assertThat(response.viewCount()).isEqualTo(firstViewCount + 2);
+    }
+
     @ParameterizedTest
     @WithMockCustomUser
     @MethodSource("getCreatePostParameter")

@@ -3,11 +3,14 @@ package lte.backend.post.controller;
 import lombok.RequiredArgsConstructor;
 import lte.backend.auth.domain.AuthMember;
 import lte.backend.post.dto.request.CreatePostRequest;
+import lte.backend.post.dto.request.GetPostsRequest;
 import lte.backend.post.dto.request.UpdatePostRequest;
 import lte.backend.post.dto.response.CreatePostResponse;
 import lte.backend.post.dto.response.GetPostResponse;
+import lte.backend.post.dto.response.GetPostsResponse;
 import lte.backend.post.dto.response.UpdatePostResponse;
 import lte.backend.post.service.PostService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -25,8 +28,7 @@ public class PostController implements PostApi {
             @Validated @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        CreatePostResponse response = postService.create(request, authMember.getUserId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(postService.create(request, authMember.getUserId()));
     }
 
     @PutMapping("/{postId}")
@@ -35,8 +37,7 @@ public class PostController implements PostApi {
             @PathVariable Long postId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        UpdatePostResponse response = postService.update(request, authMember.getUserId(), postId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(postService.update(request, authMember.getUserId(), postId));
     }
 
     @DeleteMapping("/{postId}")
@@ -52,12 +53,16 @@ public class PostController implements PostApi {
     public ResponseEntity<GetPostResponse> getPost(
             @PathVariable Long postId
     ) {
-        GetPostResponse response = postService.getPost(postId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(postService.getPost(postId));
     }
 
     @GetMapping
-    public void getPosts() {
-
+    public ResponseEntity<GetPostsResponse> getPosts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @Validated GetPostsRequest request
+    ) {
+        PageRequest pageable = PageRequest.of(page - 1, size);
+        return ResponseEntity.ok(postService.getPosts(pageable, request));
     }
 }
