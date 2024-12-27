@@ -56,6 +56,10 @@ public class Member extends BaseTimeEntity {
         this.role = role;
     }
 
+    public Member(Long id) {
+        this.id = id;
+    }
+
     public void updateNickname(String newNickname) {
         this.nickname = newNickname;
     }
