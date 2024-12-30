@@ -42,6 +42,7 @@ public interface PostApi {
     @Operation(summary = "게시글 단건 조회")
     @GetMapping("/{postId}")
     ResponseEntity<GetPostResponse> getPost(
+            AuthMember authMember,
             Long postId
     );
 

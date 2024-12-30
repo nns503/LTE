@@ -1,6 +1,7 @@
 package lte.backend.post.service;
 
 import lombok.RequiredArgsConstructor;
+import lte.backend.follow.repository.FollowRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.member.exception.MemberNotFoundException;
 import lte.backend.member.repository.MemberRepository;
@@ -16,6 +17,7 @@ import lte.backend.post.dto.response.UpdatePostResponse;
 import lte.backend.post.exception.InvalidDeletedTimeBadRequestException;
 import lte.backend.post.exception.PostNotFoundException;
 import lte.backend.post.exception.PostPermissionException;
+import lte.backend.post.exception.PrivatePostAccessException;
 import lte.backend.post.repository.PostRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -31,6 +33,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final FollowRepository followRepository;
 
     @Transactional
     public CreatePostResponse create(CreatePostRequest request, Long memberId) {
@@ -77,14 +80,24 @@ public class PostService {
     }
 
     @Transactional
-    public GetPostResponse getPost(Long postId) {
+    public GetPostResponse getPost(Long memberId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
-        // 이웃 보기 기능 추가 예정
+        validatePrivatePostAccess(memberId, post);
+
         post.incrementViewCount();
 
         return GetPostResponse.of(post, post.getMember());
+    }
+
+    private void validatePrivatePostAccess(Long memberId, Post post) {
+        if (!post.isPrivate()) return;
+
+        Long authorId = post.getMember().getId();
+        if (!authorId.equals(memberId) && !followRepository.existsByFolloweeIdAndFollowerId(memberId, authorId)) {
+            throw new PrivatePostAccessException();
+        }
     }
 
     public GetPostsResponse getPosts(Pageable pageable, GetPostsRequest request) {
