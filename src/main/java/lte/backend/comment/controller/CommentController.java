@@ -55,7 +55,6 @@ public class CommentController implements CommentApi {
             @RequestParam(defaultValue = "10") int size
     ) {
         PageRequest pageable = PageRequest.of(page - 1, size);
-        GetCommentsResponse response = commentService.getComments(postId, pageable);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(commentService.getComments(postId, pageable));
     }
 }
