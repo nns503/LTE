@@ -66,7 +66,7 @@ public class CommentService {
     }
 
     private void validateExistsPost(Long postId) {
-        if (postRepository.existsById(postId)) {
+        if (!postRepository.existsById(postId)) {
             throw new PostNotFoundException();
         }
     }
