@@ -68,6 +68,10 @@ public class Post extends BaseTimeEntity {
         this.member = member;
     }
 
+    public Post(Long id) {
+        this.id = id;
+    }
+
     public void update(String title, String content, boolean isPrivate, LocalDateTime autoDeleted) {
         this.title = title;
         this.content = content;

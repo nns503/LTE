@@ -13,9 +13,9 @@ import lte.backend.post.dto.response.CreatePostResponse;
 import lte.backend.post.dto.response.GetPostResponse;
 import lte.backend.post.dto.response.GetPostsResponse;
 import lte.backend.post.dto.response.UpdatePostResponse;
-import lte.backend.post.exception.ForbiddenModificationException;
 import lte.backend.post.exception.InvalidDeletedTimeBadRequestException;
 import lte.backend.post.exception.PostNotFoundException;
+import lte.backend.post.exception.PostPermissionException;
 import lte.backend.post.repository.PostRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -94,7 +94,7 @@ public class PostService {
 
     private void validatePostAuthor(Long memberId, Post post) {
         if (!memberId.equals(post.getMember().getId())) {
-            throw new ForbiddenModificationException();
+            throw new PostPermissionException();
         }
     }
 
