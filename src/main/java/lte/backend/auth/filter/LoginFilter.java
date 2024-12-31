@@ -7,10 +7,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lte.backend.auth.domain.AuthMember;
+import lte.backend.auth.domain.RefreshToken;
 import lte.backend.auth.dto.request.LoginRequest;
+import lte.backend.auth.repository.RefreshTokenRepository;
 import lte.backend.auth.util.JWTUtil;
 import lte.backend.common.exception.DefaultLTEException;
 import lte.backend.common.exception.UnauthorizedLTEException;
+import lte.backend.member.domain.Member;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +29,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -46,16 +51,27 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
         AuthMember authMember = (AuthMember) authResult.getPrincipal();
-        String accessToken = jwtUtil.createAccessToken(
-                authMember.getUserId(),
-                authMember.getUsername(),
-                authResult.getAuthorities().stream()
-                        .findFirst()
-                        .map(GrantedAuthority::getAuthority)
-                        .orElseThrow(() -> new UnauthorizedLTEException("권한이 존재하지 않습니다."))
-        );
+        Long userId = authMember.getUserId();
+        String username = authMember.getUsername();
+        String role = authResult.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElseThrow(() -> new UnauthorizedLTEException("권한이 존재하지 않습니다."));
 
-        response.addHeader("Authorization", "Bearer " + accessToken);
+        String accessToken = jwtUtil.createAccessToken(userId, username, role);
+        String refreshToken = jwtUtil.createRefreshToken(userId, username, role);
+        saveRefreshTokenToRepository(userId, refreshToken);
+
+        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtUtil.createRefreshCookie(refreshToken).toString());
+    }
+
+    private void saveRefreshTokenToRepository(Long userId, String refreshToken) {
+        refreshTokenRepository.save(RefreshToken.builder()
+                .member(new Member(userId))
+                .token(refreshToken)
+                .expiration(jwtUtil.getRefreshTokenExpiration(refreshToken))
+                .build());
     }
 
     @Override

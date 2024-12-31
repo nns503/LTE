@@ -1,10 +1,17 @@
 package lte.backend.auth.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lte.backend.auth.domain.AuthMember;
+import lte.backend.auth.domain.RefreshToken;
+import lte.backend.auth.dto.ReissueTokenDTO;
 import lte.backend.auth.dto.request.JoinRequest;
+import lte.backend.auth.dto.request.ReissueTokenRequest;
 import lte.backend.auth.exception.NicknameDuplicationException;
+import lte.backend.auth.exception.RefreshTokenException;
 import lte.backend.auth.exception.UsernameDuplicationException;
+import lte.backend.auth.repository.RefreshTokenRepository;
+import lte.backend.auth.util.JWTUtil;
 import lte.backend.member.domain.Member;
 import lte.backend.member.domain.MemberRole;
 import lte.backend.member.exception.MemberNotFoundException;
@@ -16,11 +23,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
 public class AuthService implements UserDetailsService {
 
+    public static final String CATEGORY_REFRESH = "refresh";
+
+    private final JWTUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -44,6 +56,23 @@ public class AuthService implements UserDetailsService {
         memberRepository.save(member);
     }
 
+    @Transactional
+    public ReissueTokenDTO reissueToken(ReissueTokenRequest request) {
+        String refreshToken = request.refreshToken();
+        validateRefreshToken(refreshToken);
+
+        Long userId = jwtUtil.getUserId(refreshToken);
+        String username = jwtUtil.getUsername(refreshToken);
+        String role = jwtUtil.getRole(refreshToken).toString();
+        String accessToken = jwtUtil.createAccessToken(userId, username, role);
+        String newRefreshToken = jwtUtil.createRefreshToken(userId, username, role);
+
+        refreshTokenRepository.deleteByToken(refreshToken);
+        saveRefreshTokenToRepository(userId, newRefreshToken);
+
+        return new ReissueTokenDTO(accessToken, newRefreshToken);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByUsername(username)
@@ -62,5 +91,41 @@ public class AuthService implements UserDetailsService {
         if(memberRepository.existsByUsername(username)) {
             throw new UsernameDuplicationException();
         }
+    }
+
+    private void validateRefreshToken(String refresh) {
+        validateValidToken(refresh);
+        validateTokenCategory(refresh);
+        validateTokenRepository(refresh);
+    }
+
+    private void validateTokenCategory(String tokenValue) {
+        if (!jwtUtil.getCategory(tokenValue).equals(CATEGORY_REFRESH)) {
+            log.info("카테고리가 다른 토큰");
+
+            throw new RefreshTokenException();
+        }
+    }
+
+    private void validateValidToken(String tokenValue) {
+        if (!jwtUtil.isValidToken(tokenValue)) {
+            log.info("유효하지 않는 토큰");
+            throw new RefreshTokenException();
+        }
+    }
+
+    private void validateTokenRepository(String tokenValue) {
+        if (!refreshTokenRepository.existsByToken(tokenValue)) {
+            log.info("저장소에 보관 되어있지 않은 토큰");
+            throw new RefreshTokenException();
+        }
+    }
+
+    private void saveRefreshTokenToRepository(Long userId, String refreshToken) {
+        refreshTokenRepository.save(RefreshToken.builder()
+                .member(new Member(userId))
+                .token(refreshToken)
+                .expiration(jwtUtil.getRefreshTokenExpiration(refreshToken))
+                .build());
     }
 }
