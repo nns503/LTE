@@ -3,14 +3,17 @@ package lte.backend.Integration.controller;
 import lte.backend.Integration.fixture.IntegrationFixture;
 import lte.backend.member.domain.Member;
 import lte.backend.post.domain.Post;
+import lte.backend.post.dto.PostDTO;
 import lte.backend.post.dto.request.CreatePostRequest;
 import lte.backend.post.dto.request.UpdatePostRequest;
 import lte.backend.post.dto.response.CreatePostResponse;
 import lte.backend.post.dto.response.GetPostResponse;
+import lte.backend.post.dto.response.GetPostsResponse;
 import lte.backend.post.repository.PostRepository;
 import lte.backend.util.IntegrationTest;
 import lte.backend.util.JsonMvcResponseMapper;
 import lte.backend.util.WithMockCustomUser;
+import lte.backend.util.formatter.CustomTimeFormatter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,8 +114,8 @@ public class PostIntegrationTest extends IntegrationTest {
         assertThat(response.viewCount()).isEqualTo(savedPost.getViewCount());
         assertThat(response.likeCount()).isEqualTo(savedPost.getLikeCount());
         assertThat(response.isPrivate()).isEqualTo(savedPost.isPrivate());
-        assertThat(response.autoDeleted()).isEqualTo(savedPost.getAutoDeleted());
-        assertThat(response.createdAt()).isEqualTo(savedPost.getCreatedAt());
+        assertThat(response.autoDeleted()).isEqualTo(CustomTimeFormatter.formatToDateTime(savedPost.getAutoDeleted()));
+        assertThat(response.createdAt()).isEqualTo(CustomTimeFormatter.formatToDateTime(savedPost.getCreatedAt()));
         assertThat(response.nickname()).isEqualTo(savedPost.getMember().getNickname());
         assertThat(response.memberId()).isEqualTo(savedPost.getMember().getId());
 
@@ -136,6 +140,25 @@ public class PostIntegrationTest extends IntegrationTest {
         assertThat(response.viewCount()).isEqualTo(firstViewCount + 2);
     }
 
+    @Test
+    @WithMockCustomUser
+    @DisplayName("OK : 게시글 목록 조회")
+    void getPosts() throws Exception {
+        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
+        List<Post> posts = savePosts(member);
+        List<Post> descCreateAtPosts = posts.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .toList();
+        List<PostDTO> postDTOS = toPostDTOS(descCreateAtPosts);
+
+        MvcResult result = mvc.perform(get("/api/posts"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        GetPostsResponse response = JsonMvcResponseMapper.parseJsonResponse(result, GetPostsResponse.class);
+        assertThat(response.posts()).isEqualTo(postDTOS);
+    }
+
     @ParameterizedTest
     @WithMockCustomUser
     @MethodSource("getCreatePostParameter")
@@ -151,7 +174,7 @@ public class PostIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockCustomUser
-    @DisplayName("ERROR : 게시글을 생성 - 자동 삭제 시간 오류")
+    @DisplayName("ERROR : 게시글을 생성 - 자동 삭제 시간 오류 [현재 시간보다 이전 시간 입력]")
     void createPost_Error_AutoDeleteTime() throws Exception {
         CreatePostRequest request = new CreatePostRequest(
                 "테스트제목",
@@ -165,6 +188,21 @@ public class PostIntegrationTest extends IntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest());
+    }
+
+    private List<PostDTO> toPostDTOS(List<Post> descCreateAtPosts) {
+        return descCreateAtPosts.stream()
+                .map(post -> new PostDTO(
+                        post.getId(),
+                        post.getTitle(),
+                        post.getViewCount(),
+                        post.getLikeCount(),
+                        post.isPrivate(),
+                        post.getCreatedAt(),
+                        post.getMember().getId(),
+                        post.getMember().getNickname()
+                ))
+                .toList();
     }
 
     private CreatePostRequest getCreatePostRequest() {
@@ -197,5 +235,13 @@ public class PostIntegrationTest extends IntegrationTest {
     private Post savePost(Member member) {
         Post post = IntegrationFixture.testPost(member);
         return postRepository.save(post);
+    }
+
+    private List<Post> savePosts(Member member) {
+        return Stream.generate(() -> member)
+                .limit(10)
+                .map(IntegrationFixture::testPost)
+                .map(postRepository::save)
+                .toList();
     }
 }

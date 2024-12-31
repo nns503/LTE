@@ -3,8 +3,7 @@ package lte.backend.post.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lte.backend.member.domain.Member;
 import lte.backend.post.domain.Post;
-
-import java.time.LocalDateTime;
+import lte.backend.util.formatter.CustomTimeFormatter;
 
 @Schema(description = "게시글 조회 응답 데이터")
 public record GetPostResponse(
@@ -18,10 +17,10 @@ public record GetPostResponse(
         int likeCount,
         @Schema(description = "이웃공개여부", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
         boolean isPrivate,
-        @Schema(description = "자동 삭제 시간, nullable", example = "2024-01-11T11:11:11", nullable = true)
-        LocalDateTime autoDeleted,
-        @Schema(description = "작성 시간", example = "2024-01-01T11:11:11", requiredMode = Schema.RequiredMode.REQUIRED)
-        LocalDateTime createdAt,
+        @Schema(description = "자동 삭제 시간, nullable", example = "2024-01-11 11:11:11", nullable = true)
+        String autoDeleted,
+        @Schema(description = "작성 시간", example = "2024-01-01 11:11:11", requiredMode = Schema.RequiredMode.REQUIRED)
+        String createdAt,
         @Schema(description = "글 작성자", example = "나테스트", requiredMode = Schema.RequiredMode.REQUIRED)
         String nickname,
         @Schema(description = "글 작성자 식별자", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -35,8 +34,8 @@ public record GetPostResponse(
                 post.getViewCount(),
                 post.getLikeCount(),
                 post.isPrivate(),
-                post.getAutoDeleted(),
-                post.getCreatedAt(),
+                CustomTimeFormatter.formatToDateTime(post.getAutoDeleted()),
+                CustomTimeFormatter.formatToDateTime(post.getCreatedAt()),
                 member.getNickname(),
                 member.getId()
         );
