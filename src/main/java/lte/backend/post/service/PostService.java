@@ -24,12 +24,15 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
 public class PostService {
+
+    private final Clock clock;
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
@@ -39,9 +42,7 @@ public class PostService {
     public CreatePostResponse create(CreatePostRequest request, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
-
         validateAutoDeletedTimeNotFuture(request.autoDeleted());
-
         Post post = Post.builder()
                 .title(request.title())
                 .content(request.content())
@@ -52,6 +53,7 @@ public class PostService {
                 .autoDeleted(request.autoDeleted())
                 .member(member)
                 .build();
+
         Post savedPost = postRepository.save(post);
 
         return new CreatePostResponse(savedPost.getId());
@@ -61,7 +63,6 @@ public class PostService {
     public UpdatePostResponse update(UpdatePostRequest request, Long memberId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
-
         validatePostAuthor(memberId, post);
         validateAutoDeletedTimeNotFuture(request.autoDeleted());
 
@@ -83,12 +84,16 @@ public class PostService {
     public GetPostResponse getPost(Long memberId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
-
         validatePrivatePostAccess(memberId, post);
-
         post.incrementViewCount();
 
         return GetPostResponse.of(post, post.getMember());
+    }
+
+    @Transactional
+    public void autoDeletePosts() {
+        LocalDateTime currentTime = LocalDateTime.now(clock);
+        postRepository.softDeleteExpiredAutoDeletedPosts(currentTime);
     }
 
     private void validatePrivatePostAccess(Long memberId, Post post) {
