@@ -2,8 +2,8 @@ package lte.backend.follow.service;
 
 import lombok.RequiredArgsConstructor;
 import lte.backend.follow.domain.Follow;
-import lte.backend.follow.dto.FollowDTO;
 import lte.backend.follow.dto.response.GetFolloweeListResponse;
+import lte.backend.follow.dto.response.GetFolloweePostsResponse;
 import lte.backend.follow.dto.response.GetFollowerListResponse;
 import lte.backend.follow.exception.AlreadyFollowMemberException;
 import lte.backend.follow.exception.NonFollowMemberException;
@@ -12,8 +12,9 @@ import lte.backend.follow.repository.FollowRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.member.exception.MemberNotFoundException;
 import lte.backend.member.repository.MemberRepository;
+import lte.backend.post.repository.PostRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FollowService {
 
+    private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
 
@@ -49,14 +51,19 @@ public class FollowService {
 
     public GetFollowerListResponse getFollowerList(Long memberId, Long findMemberId, Pageable pageable) {
         validateExistsMember(memberId);
-        Slice<FollowDTO> followerList = followRepository.findFollowerList(memberId, findMemberId, pageable);
-        return GetFollowerListResponse.from(followerList);
+        validateExistsMember(findMemberId);
+        return GetFollowerListResponse.from(followRepository.findFollowerList(memberId, findMemberId, pageable));
     }
 
     public GetFolloweeListResponse getFolloweeList(Long memberId, Long findMemberId, Pageable pageable) {
         validateExistsMember(memberId);
-        Slice<FollowDTO> followeeList = followRepository.findFolloweeList(memberId, findMemberId, pageable);
-        return GetFolloweeListResponse.from(followeeList);
+        validateExistsMember(findMemberId);
+        return GetFolloweeListResponse.from(followRepository.findFolloweeList(memberId, findMemberId, pageable));
+    }
+
+    public GetFolloweePostsResponse getFolloweePostList(Long memberId) {
+        Pageable pageable = PageRequest.of(0, 10);
+        return GetFolloweePostsResponse.from(postRepository.findFolloweePosts(memberId, pageable));
     }
 
     private void validateSelfFollow(Long followeeId, Long memberId) {

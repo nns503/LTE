@@ -11,6 +11,7 @@ import lte.backend.post.dto.response.GetPostsResponse;
 import lte.backend.post.dto.response.UpdatePostResponse;
 import lte.backend.post.service.PostService;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -63,7 +64,7 @@ public class PostController implements PostApi {
             @RequestParam(defaultValue = "10") int size,
             @Validated GetPostsRequest request
     ) {
-        PageRequest pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
         return ResponseEntity.ok(postService.getPosts(pageable, request));
     }
 }
