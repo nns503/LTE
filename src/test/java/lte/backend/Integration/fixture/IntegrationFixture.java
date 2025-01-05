@@ -16,6 +16,16 @@ public class IntegrationFixture {
             .isDeleted(false)
             .build();
 
+    public static final Member testMember2 = Member.builder()
+            .id(2L)
+            .username("test5678")
+            .password("test5678!!")
+            .nickname("김테스트")
+            .profileUrl("default_url")
+            .role(MemberRole.ROLE_USER)
+            .isDeleted(false)
+            .build();
+
     public static Post testPost(Member member) {
         return Post.builder()
                 .title("테스트제목")

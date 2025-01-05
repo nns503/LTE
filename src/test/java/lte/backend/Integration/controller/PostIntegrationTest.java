@@ -2,6 +2,7 @@ package lte.backend.Integration.controller;
 
 import lte.backend.Integration.fixture.IntegrationFixture;
 import lte.backend.member.domain.Member;
+import lte.backend.member.domain.MemberRole;
 import lte.backend.post.domain.Post;
 import lte.backend.post.dto.PostDTO;
 import lte.backend.post.dto.request.CreatePostRequest;
@@ -14,6 +15,7 @@ import lte.backend.util.IntegrationTest;
 import lte.backend.util.JsonMvcResponseMapper;
 import lte.backend.util.WithMockCustomUser;
 import lte.backend.util.formatter.CustomTimeFormatter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +26,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +39,21 @@ public class PostIntegrationTest extends IntegrationTest {
 
     @Autowired
     private PostRepository postRepository;
+
+    private Member member;
+
+    @BeforeEach
+    void setup() {
+        member = Member.builder()
+                .id(1L)
+                .username("test1234")
+                .password(passwordEncoder.encode("test1234!!"))
+                .nickname("나테스트")
+                .profileUrl("default_url")
+                .role(MemberRole.ROLE_USER)
+                .isDeleted(false)
+                .build();
+    }
 
     @Test
     @WithMockCustomUser
@@ -61,7 +80,7 @@ public class PostIntegrationTest extends IntegrationTest {
     @WithMockCustomUser
     @DisplayName("OK : 게시글을 수정")
     void updatePost() throws Exception {
-        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
+        member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
         Post savedPost = savePost(member);
         UpdatePostRequest request = getUpdatePostRequest();
         String body = objectMapper.writeValueAsString(request);
@@ -82,7 +101,6 @@ public class PostIntegrationTest extends IntegrationTest {
     @WithMockCustomUser
     @DisplayName("OK : 게시글을 삭제")
     void deletePost() throws Exception {
-        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
         Post savedPost = savePost(member);
 
         mvc.perform(delete("/api/posts/" + savedPost.getId()))
@@ -100,7 +118,6 @@ public class PostIntegrationTest extends IntegrationTest {
     @WithMockCustomUser
     @DisplayName("OK : 단건 게시글을 조회")
     void getPost() throws Exception {
-        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
         Post savedPost = savePost(member);
         int firstViewCount = savedPost.getViewCount();
 
@@ -126,7 +143,6 @@ public class PostIntegrationTest extends IntegrationTest {
     @WithMockCustomUser
     @DisplayName("OK : 여러번 조회 시 조회수가 증가")
     void validateUpdateViewCount() throws Exception {
-        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
         Post savedPost = savePost(member);
         int firstViewCount = savedPost.getViewCount();
 
@@ -142,9 +158,8 @@ public class PostIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockCustomUser
-    @DisplayName("OK : 게시글 목록 조회")
-    void getPosts() throws Exception {
-        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
+    @DisplayName("OK : 게시글 목록 조회 - 기본값 , DATE")
+    void getPosts_Default_DATE() throws Exception {
         List<Post> posts = savePosts(member);
         List<Post> descCreateAtPosts = posts.stream()
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
@@ -159,10 +174,66 @@ public class PostIntegrationTest extends IntegrationTest {
         assertThat(response.posts()).isEqualTo(postDTOS);
     }
 
+    @Test
+    @WithMockCustomUser
+    @DisplayName("OK : 게시글 목록 조회 - 조회수")
+    void getPosts_VIEW_COUNT() throws Exception {
+        List<Post> posts = savePosts(member);
+        List<Post> descCreateAtPosts = posts.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .toList();
+        List<PostDTO> postDTOS = toPostDTOS(descCreateAtPosts);
+
+        MvcResult result = mvc.perform(get("/api/posts"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        GetPostsResponse response = JsonMvcResponseMapper.parseJsonResponse(result, GetPostsResponse.class);
+        assertThat(response.posts()).isEqualTo(postDTOS);
+    }
+
+    @Test
+    @WithMockCustomUser
+    @DisplayName("OK : 게시글 목록 조회 - 좋아요")
+    void getPosts_LIKES() throws Exception {
+        List<Post> posts = savePosts(member);
+        List<Post> descLikeCountPosts = posts.stream()
+                .sorted(Comparator.comparing(Post::getLikeCount, Comparator.reverseOrder())
+                        .thenComparing(Post::getId, Comparator.reverseOrder()))
+                .toList();
+        List<PostDTO> postDTOS = toPostDTOS(descLikeCountPosts);
+
+        MvcResult result = mvc.perform(get("/api/posts?sortBy=LIKES"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        GetPostsResponse response = JsonMvcResponseMapper.parseJsonResponse(result, GetPostsResponse.class);
+        assertThat(response.posts()).isEqualTo(postDTOS);
+    }
+
+    @Test
+    @WithMockCustomUser
+    @DisplayName("OK : 게시글 목록 조회 - 조회수")
+    void getPosts_VIEWS() throws Exception {
+        List<Post> posts = savePosts(member);
+        List<Post> descViewCountPosts = posts.stream()
+                .sorted(Comparator.comparing(Post::getViewCount, Comparator.reverseOrder())
+                        .thenComparing(Post::getId, Comparator.reverseOrder()))
+                .toList();
+        List<PostDTO> postDTOS = toPostDTOS(descViewCountPosts);
+
+        MvcResult result = mvc.perform(get("/api/posts?sortBy=VIEWS"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        GetPostsResponse response = JsonMvcResponseMapper.parseJsonResponse(result, GetPostsResponse.class);
+        assertThat(response.posts()).isEqualTo(postDTOS);
+    }
+
     @ParameterizedTest
     @WithMockCustomUser
     @MethodSource("getCreatePostParameter")
-    @DisplayName("ERROR : 게시글을 생성 - 요청에 대한 Validation 예외")
+    @DisplayName("400 : 게시글을 생성 - 요청에 대한 Validation 예외")
     void createPost_Error_Validation(CreatePostRequest request) throws Exception {
         String body = objectMapper.writeValueAsString(request);
 
@@ -174,7 +245,7 @@ public class PostIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockCustomUser
-    @DisplayName("ERROR : 게시글을 생성 - 자동 삭제 시간 오류 [현재 시간보다 이전 시간 입력]")
+    @DisplayName("400 : 게시글을 생성 - 자동 삭제 시간 오류 [현재 시간보다 이전 시간 입력]")
     void createPost_Error_AutoDeleteTime() throws Exception {
         CreatePostRequest request = new CreatePostRequest(
                 "테스트제목",
@@ -240,8 +311,22 @@ public class PostIntegrationTest extends IntegrationTest {
     private List<Post> savePosts(Member member) {
         return Stream.generate(() -> member)
                 .limit(10)
-                .map(IntegrationFixture::testPost)
+                .map(m -> {
+                    int randomLikeCount = ThreadLocalRandom.current().nextInt(0, 50);
+                    int randomViewCount = ThreadLocalRandom.current().nextInt(0, 50);
+
+                    return Post.builder()
+                            .title("테스트제목" + randomLikeCount)
+                            .content("테스트내용" + randomViewCount)
+                            .isPrivate(false)
+                            .isDeleted(false)
+                            .likeCount(randomLikeCount)
+                            .viewCount(randomViewCount)
+                            .autoDeleted(null)
+                            .member(m)
+                            .build();
+                })
                 .map(postRepository::save)
-                .toList();
+                .toList(); // 리스트로 변환
     }
 }

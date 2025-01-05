@@ -45,7 +45,7 @@ public class PostRepositoryImpl implements GetPostRepository {
                 .from(post)
                 .join(post.member, member)
                 .where(builder)
-                .orderBy(getOrderBy(sortBy))
+                .orderBy(getOrderBy(sortBy), post.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
