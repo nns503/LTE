@@ -1,6 +1,7 @@
 package lte.backend.auth.config;
 
 import lombok.RequiredArgsConstructor;
+import lte.backend.auth.filter.CustomLogoutFilter;
 import lte.backend.auth.filter.JWTFilter;
 import lte.backend.auth.filter.LoginFilter;
 import lte.backend.auth.repository.RefreshTokenRepository;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @RequiredArgsConstructor
 @Configuration
@@ -43,6 +45,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
+        http.logout(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests((auth)->auth
                 .requestMatchers("/api/join", "/api/login", "/api/refresh").permitAll()
@@ -50,7 +53,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated());
         http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
-
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class);
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
