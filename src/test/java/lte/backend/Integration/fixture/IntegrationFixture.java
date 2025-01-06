@@ -1,5 +1,6 @@
 package lte.backend.Integration.fixture;
 
+import lte.backend.comment.domain.Comment;
 import lte.backend.member.domain.Member;
 import lte.backend.member.domain.MemberRole;
 import lte.backend.post.domain.Post;
@@ -57,6 +58,14 @@ public class IntegrationFixture {
                 .viewCount(0)
                 .autoDeleted(null)
                 .member(member)
+                .build();
+    }
+
+    public static Comment testComment1(Member member, Post post) {
+        return Comment.builder()
+                .content("테스트내용")
+                .member(member)
+                .post(post)
                 .build();
     }
 }

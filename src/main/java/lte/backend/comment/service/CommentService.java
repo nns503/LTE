@@ -7,6 +7,7 @@ import lte.backend.comment.dto.request.CreateCommentRequest;
 import lte.backend.comment.dto.request.UpdateCommentRequest;
 import lte.backend.comment.dto.response.GetCommentsResponse;
 import lte.backend.comment.exception.CommentNotFoundException;
+import lte.backend.comment.exception.CommentPermissionException;
 import lte.backend.comment.repository.CommentRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.post.domain.Post;
@@ -60,8 +61,8 @@ public class CommentService {
     }
 
     private void validateCommentAuthor(Long authorId, Long memberId) {
-        if (authorId.equals(memberId)) {
-            throw new CommentNotFoundException();
+        if (!authorId.equals(memberId)) {
+            throw new CommentPermissionException();
         }
     }
 
