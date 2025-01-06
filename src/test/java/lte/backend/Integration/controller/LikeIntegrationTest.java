@@ -7,7 +7,7 @@ import lte.backend.member.domain.MemberRole;
 import lte.backend.post.domain.Post;
 import lte.backend.post.repository.PostRepository;
 import lte.backend.util.IntegrationTest;
-import lte.backend.util.WithMockCustomUser;
+import lte.backend.util.WithMockCustomMember;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class LikeIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 좋아요를 누름")
     void likePost() throws Exception {
         mvc.perform(post("/api/posts/" + post.getId() + "/like"))
@@ -54,7 +54,7 @@ public class LikeIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("409 : 같은 글에 좋아요를 두번 누름")
     void likePost_Duplicate() throws Exception {
         mvc.perform(post("/api/posts/" + post.getId() + "/like"))

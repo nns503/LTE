@@ -13,7 +13,7 @@ import lte.backend.post.dto.response.GetPostsResponse;
 import lte.backend.post.repository.PostRepository;
 import lte.backend.util.IntegrationTest;
 import lte.backend.util.JsonMvcResponseMapper;
-import lte.backend.util.WithMockCustomUser;
+import lte.backend.util.WithMockCustomMember;
 import lte.backend.util.formatter.CustomTimeFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -56,7 +56,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 게시글을 생성")
     void createPost() throws Exception {
         CreatePostRequest request = getCreatePostRequest();
@@ -77,7 +77,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 게시글을 수정")
     void updatePost() throws Exception {
         member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
@@ -98,7 +98,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 게시글을 삭제")
     void deletePost() throws Exception {
         Post savedPost = savePost(member);
@@ -115,7 +115,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 단건 게시글을 조회")
     void getPost() throws Exception {
         Post savedPost = savePost(member);
@@ -140,7 +140,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 여러번 조회 시 조회수가 증가")
     void validateUpdateViewCount() throws Exception {
         Post savedPost = savePost(member);
@@ -157,7 +157,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 게시글 목록 조회 - 기본값 , DATE")
     void getPosts_Default_DATE() throws Exception {
         List<Post> posts = savePosts(member);
@@ -175,7 +175,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 게시글 목록 조회 - 조회수")
     void getPosts_VIEW_COUNT() throws Exception {
         List<Post> posts = savePosts(member);
@@ -193,7 +193,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 게시글 목록 조회 - 좋아요")
     void getPosts_LIKES() throws Exception {
         List<Post> posts = savePosts(member);
@@ -212,7 +212,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 게시글 목록 조회 - 조회수")
     void getPosts_VIEWS() throws Exception {
         List<Post> posts = savePosts(member);
@@ -231,7 +231,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @ParameterizedTest
-    @WithMockCustomUser
+    @WithMockCustomMember
     @MethodSource("getCreatePostParameter")
     @DisplayName("400 : 게시글을 생성 - 요청에 대한 Validation 예외")
     void createPost_Error_Validation(CreatePostRequest request) throws Exception {
@@ -244,7 +244,7 @@ public class PostIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("400 : 게시글을 생성 - 자동 삭제 시간 오류 [현재 시간보다 이전 시간 입력]")
     void createPost_Error_AutoDeleteTime() throws Exception {
         CreatePostRequest request = new CreatePostRequest(

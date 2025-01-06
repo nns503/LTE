@@ -6,7 +6,7 @@ import lte.backend.member.domain.MemberRole;
 import lte.backend.member.dto.request.UpdateNicknameRequest;
 import lte.backend.member.dto.request.UpdatePasswordRequest;
 import lte.backend.util.IntegrationTest;
-import lte.backend.util.WithMockCustomUser;
+import lte.backend.util.WithMockCustomMember;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class MemberIntegrationTest extends IntegrationTest {
     private PasswordEncoder passwordEncoder;
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 닉네임 변경")
     void updateNickname() throws Exception {
         UpdateNicknameRequest request = getUpdateNicknameRequest();
@@ -39,11 +39,11 @@ public class MemberIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("409 : 닉네임 변경 - 현재와 동일한 닉네임")
     void updateNickname_DuplicateMyNickname() throws Exception {
         UpdateNicknameRequest request = new UpdateNicknameRequest(
-                IntegrationFixture.testMember.getNickname()
+                IntegrationFixture.testMember1.getNickname()
         );
         String body = objectMapper.writeValueAsString(request);
 
@@ -54,7 +54,7 @@ public class MemberIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("409 : 닉네임 변경 - 이미 존재하는 닉네임")
     void updateNickname_DuplicateOtherNickname() throws Exception {
         Member otherMember = Member.builder()
@@ -79,11 +79,11 @@ public class MemberIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("OK : 비밀번호 변경")
     void updatePassword() throws Exception {
         UpdatePasswordRequest request = new UpdatePasswordRequest(
-                IntegrationFixture.testMember.getPassword(),
+                IntegrationFixture.testMember1.getPassword(),
                 "test5678!!"
         );
         String body = objectMapper.writeValueAsString(request);
@@ -98,11 +98,11 @@ public class MemberIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
+    @WithMockCustomMember
     @DisplayName("400 : 비밀번호 변경 - 현재와 다른 비밀번호 입력")
     void updatePassword_InvalidPassword() throws Exception {
         UpdatePasswordRequest request = new UpdatePasswordRequest(
-                IntegrationFixture.testMember.getPassword() + "@",
+                IntegrationFixture.testMember1.getPassword() + "@",
                 "test5678!!"
         );
         String body = objectMapper.writeValueAsString(request);

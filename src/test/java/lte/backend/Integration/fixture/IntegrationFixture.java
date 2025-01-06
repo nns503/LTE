@@ -6,7 +6,7 @@ import lte.backend.post.domain.Post;
 
 public class IntegrationFixture {
 
-    public static final Member testMember = Member.builder()
+    public static final Member testMember1 = Member.builder()
             .id(1L)
             .username("test1234")
             .password("test1234!!")
@@ -25,6 +25,27 @@ public class IntegrationFixture {
             .role(MemberRole.ROLE_USER)
             .isDeleted(false)
             .build();
+
+    public static final Member testMember3 = Member.builder()
+            .id(3L)
+            .username("test1212")
+            .password("test1212!!")
+            .nickname("이테스트")
+            .profileUrl("default_url")
+            .role(MemberRole.ROLE_USER)
+            .isDeleted(false)
+            .build();
+
+    public static final Member testMember4 = Member.builder()
+            .id(4L)
+            .username("test3434")
+            .password("test3434!!")
+            .nickname("신테스트")
+            .profileUrl("default_url")
+            .role(MemberRole.ROLE_USER)
+            .isDeleted(false)
+            .build();
+
 
     public static Post testPost(Member member) {
         return Post.builder()

@@ -7,10 +7,10 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
-public class MockSecurityContextFactory implements WithSecurityContextFactory<WithMockCustomUser> {
+public class MockSecurityContextFactory implements WithSecurityContextFactory<WithMockCustomMember> {
 
     @Override
-    public SecurityContext createSecurityContext(WithMockCustomUser annotation) {
+    public SecurityContext createSecurityContext(WithMockCustomMember annotation) {
         Member member = Member.builder()
                 .id(annotation.id())
                 .username(annotation.username())
