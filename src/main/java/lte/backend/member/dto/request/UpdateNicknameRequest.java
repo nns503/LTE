@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "닉네임 변경 요청 데이터")
 public record UpdateNicknameRequest(
         @Schema(description = "닉네임", example = "테스트A2", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "닉네임을 입력해주세요")

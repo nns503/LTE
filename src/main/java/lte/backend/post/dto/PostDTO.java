@@ -8,7 +8,7 @@ import lte.backend.util.formatter.CustomTimeFormatter;
 
 import java.time.LocalDateTime;
 
-@Schema(description = "게시글 목록에서의 게시글 정보 데이터")
+@Schema(description = "게시글 목록에서 사용하는 게시글 정보 데이터")
 @NoArgsConstructor
 @Data
 public class PostDTO {

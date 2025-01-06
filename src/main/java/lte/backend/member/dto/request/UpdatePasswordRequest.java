@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "비밀번호 변경 요청 데이터")
 public record UpdatePasswordRequest(
         @Schema(description = "비밀번호", example = "test1234!!", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "비밀번호를 입력해주세요")
