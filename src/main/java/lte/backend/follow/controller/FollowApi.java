@@ -3,6 +3,7 @@ package lte.backend.follow.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lte.backend.auth.domain.AuthMember;
+import lte.backend.follow.dto.response.GetFollowCountResponse;
 import lte.backend.follow.dto.response.GetFolloweeListResponse;
 import lte.backend.follow.dto.response.GetFolloweePostsResponse;
 import lte.backend.follow.dto.response.GetFollowerListResponse;
@@ -52,5 +53,11 @@ public interface FollowApi {
     @GetMapping("/followee/posts")
     ResponseEntity<GetFolloweePostsResponse> getFolloweePosts(
             AuthMember authMember
+    );
+
+    @Operation(summary = "팔로위 및 팔로워 수 조회")
+    @GetMapping("/{memberId}/follow/count")
+    ResponseEntity<GetFollowCountResponse> getFollowCount(
+            Long memberId
     );
 }

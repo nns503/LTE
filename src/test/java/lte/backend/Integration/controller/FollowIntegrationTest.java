@@ -3,6 +3,7 @@ package lte.backend.Integration.controller;
 import lte.backend.Integration.fixture.IntegrationFixture;
 import lte.backend.follow.domain.Follow;
 import lte.backend.follow.dto.FollowDTO;
+import lte.backend.follow.dto.response.GetFollowCountResponse;
 import lte.backend.follow.dto.response.GetFolloweeListResponse;
 import lte.backend.follow.dto.response.GetFolloweePostsResponse;
 import lte.backend.follow.dto.response.GetFollowerListResponse;
@@ -161,5 +162,30 @@ public class FollowIntegrationTest extends IntegrationTest {
                 .andReturn();
         GetFolloweePostsResponse response = JsonMvcResponseMapper.parseJsonResponse(result, GetFolloweePostsResponse.class);
         assertThat(response.posts()).hasSize(5);
+    }
+
+    @Test
+    @WithMockCustomMember
+    @DisplayName("OK : 팔로워 및 팔로우 숫자 조회")
+    void getFollowCount() throws Exception {
+        followRepository.save(Follow.builder()
+                .followee(new Member(member2.getId()))
+                .follower(new Member(member1.getId()))
+                .build());
+        followRepository.save(Follow.builder()
+                .followee(new Member(member3.getId()))
+                .follower(new Member(member1.getId()))
+                .build());
+        followRepository.save(Follow.builder()
+                .followee(new Member(member1.getId()))
+                .follower(new Member(member2.getId()))
+                .build());
+
+        MvcResult result = mvc.perform(get("/api/members/" + member1.getId() + "/follow/count"))
+                .andExpect(status().isOk())
+                .andReturn();
+        GetFollowCountResponse response = JsonMvcResponseMapper.parseJsonResponse(result, GetFollowCountResponse.class);
+        assertThat(response.followeeCount()).isEqualTo(2);
+        assertThat(response.followerCount()).isEqualTo(1);
     }
 }

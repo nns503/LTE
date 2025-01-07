@@ -2,6 +2,7 @@ package lte.backend.follow.controller;
 
 import lombok.RequiredArgsConstructor;
 import lte.backend.auth.domain.AuthMember;
+import lte.backend.follow.dto.response.GetFollowCountResponse;
 import lte.backend.follow.dto.response.GetFolloweeListResponse;
 import lte.backend.follow.dto.response.GetFolloweePostsResponse;
 import lte.backend.follow.dto.response.GetFollowerListResponse;
@@ -64,5 +65,12 @@ public class FollowController implements FollowApi {
             @AuthenticationPrincipal AuthMember authMember
     ) {
         return ResponseEntity.ok(followService.getFolloweePostList(authMember.getUserId()));
+    }
+
+    @GetMapping("/{memberId}/follow/count")
+    public ResponseEntity<GetFollowCountResponse> getFollowCount(
+            @PathVariable Long memberId
+    ) {
+        return ResponseEntity.ok(followService.getFollowCount(memberId));
     }
 }

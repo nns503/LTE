@@ -29,4 +29,16 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             "ON f1.followee.id = f2.followee.id AND f2.follower.id = :memberId " +
             "WHERE f1.follower.id = :findMemberId")
     Slice<FollowDTO> findFolloweeList(Long memberId, Long findMemberId, Pageable pageable);
+
+    default Long getFollowerCount(Long memberId) {
+        return countByFolloweeId(memberId);
+    }
+
+    Long countByFolloweeId(Long FolloweeId);
+
+    default Long getFolloweeCount(Long memberId) {
+        return countByFollowerId(memberId);
+    }
+
+    Long countByFollowerId(Long FollowerId);
 }

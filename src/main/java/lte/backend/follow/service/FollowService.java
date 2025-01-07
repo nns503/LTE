@@ -2,6 +2,7 @@ package lte.backend.follow.service;
 
 import lombok.RequiredArgsConstructor;
 import lte.backend.follow.domain.Follow;
+import lte.backend.follow.dto.response.GetFollowCountResponse;
 import lte.backend.follow.dto.response.GetFolloweeListResponse;
 import lte.backend.follow.dto.response.GetFolloweePostsResponse;
 import lte.backend.follow.dto.response.GetFollowerListResponse;
@@ -64,6 +65,12 @@ public class FollowService {
     public GetFolloweePostsResponse getFolloweePostList(Long memberId) {
         Pageable pageable = PageRequest.of(0, 10);
         return GetFolloweePostsResponse.from(postRepository.findFolloweePosts(memberId, pageable));
+    }
+
+    public GetFollowCountResponse getFollowCount(Long memberId) {
+        Long followerCount = followRepository.getFollowerCount(memberId);
+        Long followeeCount = followRepository.getFolloweeCount(memberId);
+        return new GetFollowCountResponse(followerCount, followeeCount);
     }
 
     private void validateSelfFollow(Long followeeId, Long memberId) {
