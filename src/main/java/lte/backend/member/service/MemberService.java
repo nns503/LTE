@@ -5,6 +5,7 @@ import lte.backend.auth.exception.NicknameDuplicationException;
 import lte.backend.member.domain.Member;
 import lte.backend.member.dto.request.UpdateNicknameRequest;
 import lte.backend.member.dto.request.UpdatePasswordRequest;
+import lte.backend.member.dto.response.GetMemberInfoResponse;
 import lte.backend.member.exception.InvalidPasswordException;
 import lte.backend.member.exception.MemberNotFoundException;
 import lte.backend.member.repository.MemberRepository;
@@ -40,6 +41,13 @@ public class MemberService {
         String encodedNewPassword = passwordEncoder.encode(request.newPassword());
 
         member.updatePassword(encodedNewPassword);
+    }
+
+    public GetMemberInfoResponse getMemberInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        return GetMemberInfoResponse.from(member);
     }
 
     private void validateCurrentPassword(UpdatePasswordRequest request, Member member) {

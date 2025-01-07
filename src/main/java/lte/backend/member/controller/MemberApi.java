@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lte.backend.auth.domain.AuthMember;
 import lte.backend.member.dto.request.UpdateNicknameRequest;
 import lte.backend.member.dto.request.UpdatePasswordRequest;
+import lte.backend.member.dto.response.GetMemberInfoResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -25,5 +27,11 @@ public interface MemberApi {
     ResponseEntity<Void> updatePassword(
             UpdatePasswordRequest request,
             AuthMember authMember
+    );
+
+    @Operation(summary = "회원 정보 요청")
+    @GetMapping("/{memberId}/info")
+    ResponseEntity<GetMemberInfoResponse> getMemberInfo(
+            Long memberId
     );
 }

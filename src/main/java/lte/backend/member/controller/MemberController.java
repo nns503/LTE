@@ -4,14 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lte.backend.auth.domain.AuthMember;
 import lte.backend.member.dto.request.UpdateNicknameRequest;
 import lte.backend.member.dto.request.UpdatePasswordRequest;
+import lte.backend.member.dto.response.GetMemberInfoResponse;
 import lte.backend.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -36,5 +34,12 @@ public class MemberController implements MemberApi {
     ) {
         memberService.updatePassword(request, authMember.getUserId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{memberId}/info")
+    public ResponseEntity<GetMemberInfoResponse> getMemberInfo(
+            @PathVariable Long memberId
+    ) {
+        return ResponseEntity.ok(memberService.getMemberInfo(memberId));
     }
 }
