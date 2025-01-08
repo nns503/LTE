@@ -22,7 +22,7 @@ public class LikeController implements LikeApi {
             @PathVariable Long postId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        likeService.likePost(postId, authMember.getUserId());
+        likeService.likePost(postId, authMember.getMemberId());
         return ResponseEntity.ok().build();
     }
 }

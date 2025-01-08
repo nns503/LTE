@@ -12,6 +12,7 @@ import lte.backend.auth.exception.RefreshTokenException;
 import lte.backend.auth.exception.UsernameDuplicationException;
 import lte.backend.auth.repository.RefreshTokenRepository;
 import lte.backend.auth.util.JWTUtil;
+import lte.backend.follow.repository.FollowRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.member.domain.MemberRole;
 import lte.backend.member.exception.MemberNotFoundException;
@@ -35,6 +36,7 @@ public class AuthService implements UserDetailsService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FollowRepository followRepository;
 
     @Transactional
     public void join(JoinRequest request) {
@@ -54,6 +56,14 @@ public class AuthService implements UserDetailsService {
                 .build();
 
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+        followRepository.deleteByFolloweeIdOrFollowerId(memberId, memberId);
+        memberRepository.delete(member);
     }
 
     @Transactional
