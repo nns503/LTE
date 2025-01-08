@@ -51,7 +51,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
         AuthMember authMember = (AuthMember) authResult.getPrincipal();
-        Long userId = authMember.getUserId();
+        Long userId = authMember.getMemberId();
         String username = authMember.getUsername();
         String role = authResult.getAuthorities().stream()
                 .findFirst()

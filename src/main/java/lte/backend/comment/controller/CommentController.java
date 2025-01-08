@@ -25,7 +25,7 @@ public class CommentController implements CommentApi {
             @PathVariable Long postId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        commentService.create(request, authMember.getUserId(), postId);
+        commentService.create(request, authMember.getMemberId(), postId);
         return ResponseEntity.ok().build();
     }
 
@@ -35,7 +35,7 @@ public class CommentController implements CommentApi {
             @PathVariable Long commentId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        commentService.update(request, authMember.getUserId(), commentId);
+        commentService.update(request, authMember.getMemberId(), commentId);
         return ResponseEntity.ok().build();
     }
 
@@ -44,7 +44,7 @@ public class CommentController implements CommentApi {
             @PathVariable Long commentId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        commentService.delete(authMember.getUserId(), commentId);
+        commentService.delete(authMember.getMemberId(), commentId);
         return ResponseEntity.ok().build();
     }
 

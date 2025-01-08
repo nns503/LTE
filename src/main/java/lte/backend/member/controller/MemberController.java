@@ -23,7 +23,7 @@ public class MemberController implements MemberApi {
             @Validated @RequestBody UpdateNicknameRequest request,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        memberService.updateNickname(request, authMember.getUserId());
+        memberService.updateNickname(request, authMember.getMemberId());
         return ResponseEntity.ok().build();
     }
 
@@ -32,7 +32,7 @@ public class MemberController implements MemberApi {
             @Validated @RequestBody UpdatePasswordRequest request,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        memberService.updatePassword(request, authMember.getUserId());
+        memberService.updatePassword(request, authMember.getMemberId());
         return ResponseEntity.ok().build();
     }
 

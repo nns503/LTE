@@ -29,7 +29,7 @@ public class PostController implements PostApi {
             @Validated @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        return ResponseEntity.ok(postService.create(request, authMember.getUserId()));
+        return ResponseEntity.ok(postService.create(request, authMember.getMemberId()));
     }
 
     @PutMapping("/{postId}")
@@ -38,7 +38,7 @@ public class PostController implements PostApi {
             @PathVariable Long postId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        return ResponseEntity.ok(postService.update(request, authMember.getUserId(), postId));
+        return ResponseEntity.ok(postService.update(request, authMember.getMemberId(), postId));
     }
 
     @DeleteMapping("/{postId}")
@@ -46,7 +46,7 @@ public class PostController implements PostApi {
             @PathVariable Long postId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        postService.delete(authMember.getUserId(), postId);
+        postService.delete(authMember.getMemberId(), postId);
         return ResponseEntity.ok().build();
     }
 
@@ -55,7 +55,7 @@ public class PostController implements PostApi {
             @AuthenticationPrincipal AuthMember authMember,
             @PathVariable Long postId
     ) {
-        return ResponseEntity.ok(postService.getPost(authMember.getUserId(), postId));
+        return ResponseEntity.ok(postService.getPost(authMember.getMemberId(), postId));
     }
 
     @GetMapping

@@ -25,7 +25,7 @@ public class FollowController implements FollowApi {
             @PathVariable Long memberId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        followService.followMember(memberId, authMember.getUserId());
+        followService.followMember(memberId, authMember.getMemberId());
         return ResponseEntity.ok().build();
     }
 
@@ -34,7 +34,7 @@ public class FollowController implements FollowApi {
             @PathVariable Long memberId,
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        followService.unfollowMember(memberId, authMember.getUserId());
+        followService.unfollowMember(memberId, authMember.getMemberId());
         return ResponseEntity.ok().build();
     }
 
@@ -46,7 +46,7 @@ public class FollowController implements FollowApi {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        return ResponseEntity.ok(followService.getFollowerList(authMember.getUserId(), memberId, pageable));
+        return ResponseEntity.ok(followService.getFollowerList(authMember.getMemberId(), memberId, pageable));
     }
 
     @GetMapping("/{memberId}/followee")
@@ -57,14 +57,14 @@ public class FollowController implements FollowApi {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        return ResponseEntity.ok(followService.getFolloweeList(authMember.getUserId(), memberId, pageable));
+        return ResponseEntity.ok(followService.getFolloweeList(authMember.getMemberId(), memberId, pageable));
     }
 
     @GetMapping("/followee/posts")
     public ResponseEntity<GetFolloweePostsResponse> getFolloweePosts(
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        return ResponseEntity.ok(followService.getFolloweePostList(authMember.getUserId()));
+        return ResponseEntity.ok(followService.getFolloweePostList(authMember.getMemberId()));
     }
 
     @GetMapping("/{memberId}/follow/count")

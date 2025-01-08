@@ -21,7 +21,7 @@ public class AuthMember implements UserDetails {
         return collection;
     }
 
-    public Long getUserId() {
+    public Long getMemberId() {
         return member.getId();
     }
 
