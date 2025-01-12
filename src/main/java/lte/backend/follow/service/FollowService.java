@@ -53,13 +53,13 @@ public class FollowService {
     public GetFollowerListResponse getFollowerList(Long memberId, Long findMemberId, Pageable pageable) {
         validateExistsMember(memberId);
         validateExistsMember(findMemberId);
-        return GetFollowerListResponse.from(followRepository.findFollowerList(memberId, findMemberId, pageable));
+        return GetFollowerListResponse.from(followRepository.findFollowersDTOByFolloweeId(memberId, findMemberId, pageable));
     }
 
     public GetFolloweeListResponse getFolloweeList(Long memberId, Long findMemberId, Pageable pageable) {
         validateExistsMember(memberId);
         validateExistsMember(findMemberId);
-        return GetFolloweeListResponse.from(followRepository.findFolloweeList(memberId, findMemberId, pageable));
+        return GetFolloweeListResponse.from(followRepository.findFolloweesDTOByFollowerId(memberId, findMemberId, pageable));
     }
 
     public GetFolloweePostsResponse getFolloweePostList(Long memberId) {
