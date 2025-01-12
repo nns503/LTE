@@ -10,9 +10,13 @@ import lte.backend.comment.exception.CommentNotFoundException;
 import lte.backend.comment.exception.CommentPermissionException;
 import lte.backend.comment.repository.CommentRepository;
 import lte.backend.member.domain.Member;
+import lte.backend.member.exception.MemberNotFoundException;
+import lte.backend.member.repository.MemberRepository;
+import lte.backend.notification.dto.NewCommentNotificationEvent;
 import lte.backend.post.domain.Post;
 import lte.backend.post.exception.PostNotFoundException;
 import lte.backend.post.repository.PostRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -23,19 +27,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CommentService {
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void create(CreateCommentRequest request, Long memberId, Long postId) {
-        validateExistsPost(postId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFoundException::new);
+
         Comment comment = Comment.builder()
                 .content(request.content())
-                .member(new Member(memberId))
-                .post(new Post(postId))
+                .member(member)
+                .post(post)
                 .build();
 
         commentRepository.save(comment);
+        if (!memberId.equals(post.getMember().getId())) {
+            eventPublisher.publishEvent(new NewCommentNotificationEvent(post, member));
+        }
     }
 
     @Transactional

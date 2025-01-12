@@ -5,7 +5,6 @@ import lte.backend.member.domain.Member;
 import lte.backend.notification.domain.Notification;
 import lte.backend.notification.domain.NotificationType;
 import lte.backend.notification.repository.NotificationRepository;
-import lte.backend.post.domain.Post;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,24 +30,8 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public void sendFollowRequestNotification(Member sender, Member receiver) {
-        sendNotification(NotificationType.NEW_FOLLOWER, sender.getId(), sender.getNickname(), receiver.getId());
-    }
-
-    @Transactional
-    public void sendNewCommentNotification(Post post, Member receiver) {
-        sendNotification(NotificationType.NEW_COMMENT, post.getId(), formatTitle(post.getTitle()), receiver.getId());
-    }
-
 
     // 알림 목록 <<- 컨트롤러 있음
 
     // 알림 읽기 << -컨트롤러 있음
-
-    private String formatTitle(String title) {
-        if (title.length() > 10) {
-            return title.substring(0, 10).trim() + "...";
-        }
-        return title;
-    }
 }
