@@ -22,7 +22,7 @@ public class NotificationEventService {
 
     @TransactionalEventListener
     public void sendFolloweeNewPostNotification(FolloweeNewPostNotificationEvent event) {
-        List<Member> followers = followRepository.findFollowersByFolloweeId(event.receiver().getId());
+        List<Member> followers = followRepository.findFollowersByFolloweeId(event.member().getId());
         followers.forEach(follower -> notificationService.sendNotification(
                 NotificationType.FOLLOWEE_NEW_POST,
                 event.post().getId(),

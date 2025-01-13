@@ -14,11 +14,11 @@ public interface PostRepository extends JpaRepository<Post, Long>, GetPostReposi
 
     boolean existsById(Long id);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Post p SET p.likeCount = p.likeCount + 1 WHERE p.id = :postId")
     void incrementLikeCount(Long postId);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Post p SET p.isDeleted = true " +
             "WHERE p.autoDeleted <= :currentTime " +
             "AND p.isDeleted = false ")

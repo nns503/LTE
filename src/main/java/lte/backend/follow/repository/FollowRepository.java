@@ -46,7 +46,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     Long countByFollowerId(Long followerId);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Follow f " +
             "WHERE f.followee.id = :memberId " +
             "OR f.follower.id = :memberId")
@@ -56,4 +56,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
             "FROM Follow f " +
             "WHERE f.followee.id = :memberId")
     List<Member> findFollowersByFolloweeId(Long memberId);
+
+    ;
 }

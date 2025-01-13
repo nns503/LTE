@@ -47,4 +47,8 @@ public class Notification extends CreateTimeEntity {
         this.isRead = isRead;
         this.member = member;
     }
+
+    public void setRead(boolean isRead) {
+        this.isRead = isRead;
+    }
 }
