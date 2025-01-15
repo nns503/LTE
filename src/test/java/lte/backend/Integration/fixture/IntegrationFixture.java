@@ -12,7 +12,7 @@ public class IntegrationFixture {
             .username("test1234")
             .password("test1234!!")
             .nickname("나테스트")
-            .profileUrl("default_url")
+            .profileUrl("https://example.com/profile.jpg")
             .role(MemberRole.ROLE_USER)
             .isDeleted(false)
             .build();
@@ -22,7 +22,7 @@ public class IntegrationFixture {
             .username("test5678")
             .password("test5678!!")
             .nickname("김테스트")
-            .profileUrl("default_url")
+            .profileUrl("https://example.com/profile.jpg")
             .role(MemberRole.ROLE_USER)
             .isDeleted(false)
             .build();
@@ -32,7 +32,7 @@ public class IntegrationFixture {
             .username("test1212")
             .password("test1212!!")
             .nickname("이테스트")
-            .profileUrl("default_url")
+            .profileUrl("https://example.com/profile.jpg")
             .role(MemberRole.ROLE_USER)
             .isDeleted(false)
             .build();

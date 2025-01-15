@@ -9,7 +9,6 @@ import lte.backend.follow.dto.response.GetFolloweePostsResponse;
 import lte.backend.follow.dto.response.GetFollowerListResponse;
 import lte.backend.follow.repository.FollowRepository;
 import lte.backend.member.domain.Member;
-import lte.backend.member.repository.MemberRepository;
 import lte.backend.post.repository.PostRepository;
 import lte.backend.util.IntegrationTest;
 import lte.backend.util.JsonMvcResponseMapper;
@@ -28,8 +27,6 @@ public class FollowIntegrationTest extends IntegrationTest {
 
     @Autowired
     private FollowRepository followRepository;
-    @Autowired
-    private MemberRepository memberRepository;
     @Autowired
     private PostRepository postRepository;
 

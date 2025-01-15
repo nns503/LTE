@@ -12,17 +12,18 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@Sql(value = {
-        "classpath:data/member.sql"
-})
-public class IntegrationTest {
+@Sql(value = "classpath:data/member.sql",
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
+)
+@Sql(value = "classpath:data/cleanup.sql",
+        executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS
+)
+public class IntegrationEventTest {
 
     @Autowired
     protected PasswordEncoder passwordEncoder;

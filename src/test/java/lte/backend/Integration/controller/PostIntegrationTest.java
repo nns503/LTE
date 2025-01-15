@@ -2,7 +2,6 @@ package lte.backend.Integration.controller;
 
 import lte.backend.Integration.fixture.IntegrationFixture;
 import lte.backend.member.domain.Member;
-import lte.backend.member.domain.MemberRole;
 import lte.backend.post.domain.Post;
 import lte.backend.post.dto.PostDTO;
 import lte.backend.post.dto.request.CreatePostRequest;
@@ -44,15 +43,7 @@ public class PostIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setup() {
-        member = Member.builder()
-                .id(1L)
-                .username("test1234")
-                .password(passwordEncoder.encode("test1234!!"))
-                .nickname("나테스트")
-                .profileUrl("default_url")
-                .role(MemberRole.ROLE_USER)
-                .isDeleted(false)
-                .build();
+        member = IntegrationFixture.testMember1;
     }
 
     @Test
