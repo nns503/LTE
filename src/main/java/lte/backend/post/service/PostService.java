@@ -5,6 +5,7 @@ import lte.backend.follow.repository.FollowRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.member.exception.MemberNotFoundException;
 import lte.backend.member.repository.MemberRepository;
+import lte.backend.notification.dto.FolloweeNewPostNotificationEvent;
 import lte.backend.post.domain.Post;
 import lte.backend.post.dto.PostDTO;
 import lte.backend.post.dto.request.CreatePostRequest;
@@ -19,6 +20,7 @@ import lte.backend.post.exception.PostNotFoundException;
 import lte.backend.post.exception.PostPermissionException;
 import lte.backend.post.exception.PrivatePostAccessException;
 import lte.backend.post.repository.PostRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ import java.time.LocalDateTime;
 @Service
 public class PostService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final Clock clock;
 
     private final PostRepository postRepository;
@@ -55,6 +58,7 @@ public class PostService {
                 .build();
 
         Post savedPost = postRepository.save(post);
+        eventPublisher.publishEvent(new FolloweeNewPostNotificationEvent(post, member));
 
         return new CreatePostResponse(savedPost.getId());
     }

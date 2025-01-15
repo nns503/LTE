@@ -13,7 +13,9 @@ import lte.backend.follow.repository.FollowRepository;
 import lte.backend.member.domain.Member;
 import lte.backend.member.exception.MemberNotFoundException;
 import lte.backend.member.repository.MemberRepository;
+import lte.backend.notification.dto.FollowRequestNotificationEvent;
 import lte.backend.post.repository.PostRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FollowService {
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
@@ -31,14 +35,19 @@ public class FollowService {
     @Transactional
     public void followMember(Long followeeId, Long memberId) {
         validateSelfFollow(followeeId, memberId);
-        validateExistsMember(followeeId);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+        Member followee = memberRepository.findById(followeeId)
+                .orElseThrow(MemberNotFoundException::new);
         validateAlreadyFollowMember(followeeId, memberId);
+
         Follow follow = Follow.builder()
-                .followee(new Member(followeeId))
-                .follower(new Member(memberId))
+                .followee(followee)
+                .follower(member)
                 .build();
 
         followRepository.save(follow);
+        eventPublisher.publishEvent(new FollowRequestNotificationEvent(member, followee));
     }
 
     @Transactional
@@ -53,13 +62,13 @@ public class FollowService {
     public GetFollowerListResponse getFollowerList(Long memberId, Long findMemberId, Pageable pageable) {
         validateExistsMember(memberId);
         validateExistsMember(findMemberId);
-        return GetFollowerListResponse.from(followRepository.findFollowerList(memberId, findMemberId, pageable));
+        return GetFollowerListResponse.from(followRepository.findFollowersDTOByFolloweeId(memberId, findMemberId, pageable));
     }
 
     public GetFolloweeListResponse getFolloweeList(Long memberId, Long findMemberId, Pageable pageable) {
         validateExistsMember(memberId);
         validateExistsMember(findMemberId);
-        return GetFolloweeListResponse.from(followRepository.findFolloweeList(memberId, findMemberId, pageable));
+        return GetFolloweeListResponse.from(followRepository.findFolloweesDTOByFollowerId(memberId, findMemberId, pageable));
     }
 
     public GetFolloweePostsResponse getFolloweePostList(Long memberId) {

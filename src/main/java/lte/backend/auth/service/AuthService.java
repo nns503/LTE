@@ -62,7 +62,7 @@ public class AuthService implements UserDetailsService {
     public void deleteMember(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
-        followRepository.deleteByFolloweeIdOrFollowerId(memberId, memberId);
+        followRepository.deleteFollowsByMemberId(memberId);
         memberRepository.delete(member);
     }
 
