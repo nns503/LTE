@@ -48,7 +48,7 @@ public class CommentService {
 
         commentRepository.save(comment);
         if (!memberId.equals(post.getMember().getId())) {
-            eventPublisher.publishEvent(new NewCommentNotificationEvent(post, member));
+            eventPublisher.publishEvent(new NewCommentNotificationEvent(post, post.getMember()));
         }
     }
 
