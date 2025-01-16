@@ -17,7 +17,7 @@ public interface NotificationApi {
 
     @Operation(summary = "알림 목록 조회")
     @GetMapping
-    ResponseEntity<GetNotificationResponse> getNotification(
+    ResponseEntity<GetNotificationResponse> getNotifications(
             AuthMember member
     );
 
@@ -42,7 +42,7 @@ public interface NotificationApi {
     );
 
     @Operation(summary = "읽은 알림 전체 삭제")
-    @DeleteMapping("/all")
+    @DeleteMapping("/read")
     ResponseEntity<Void> readNotificationsDelete(
             AuthMember authMember
     );

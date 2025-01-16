@@ -36,7 +36,7 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public GetNotificationResponse getNotification(Long memberId) {
+    public GetNotificationResponse getNotifications(Long memberId) {
         List<Notification> notifications = notificationRepository.findByMemberIdOrderByCreatedAtDesc(memberId);
         return GetNotificationResponse.from(notifications);
     }

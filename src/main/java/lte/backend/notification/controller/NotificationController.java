@@ -17,10 +17,10 @@ public class NotificationController implements NotificationApi {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<GetNotificationResponse> getNotification(
+    public ResponseEntity<GetNotificationResponse> getNotifications(
             @AuthenticationPrincipal AuthMember authMember
     ) {
-        return ResponseEntity.ok(notificationService.getNotification(authMember.getMemberId()));
+        return ResponseEntity.ok(notificationService.getNotifications(authMember.getMemberId()));
     }
 
     @PutMapping("/{notificationId}")
@@ -49,7 +49,7 @@ public class NotificationController implements NotificationApi {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/all")
+    @DeleteMapping("/read")
     public ResponseEntity<Void> readNotificationsDelete(
             @AuthenticationPrincipal AuthMember authMember
     ) {
