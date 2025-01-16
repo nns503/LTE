@@ -121,6 +121,22 @@ public class MemberIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockCustomMember
+    @DisplayName("400 : 비밀번호 변경 - 현재와 같은 비밀번호로 변경 시도")
+    void updatePassword_SameAsCurrent() throws Exception {
+        UpdatePasswordRequest request = new UpdatePasswordRequest(
+                member.getPassword(),
+                "test1234!!"
+        );
+        String body = objectMapper.writeValueAsString(request);
+
+        mvc.perform(put("/api/members/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockCustomMember
     @DisplayName("OK : 회원 정보 조회")
     void getMemberInfo() throws Exception {
         MvcResult result = mvc.perform(get("/api/members/" + member.getId() + "/info"))

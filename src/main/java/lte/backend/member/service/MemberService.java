@@ -38,6 +38,8 @@ public class MemberService {
                 .orElseThrow(MemberNotFoundException::new);
 
         validateCurrentPassword(request, member);
+        validatePasswordNotSameAsCurrent(request);
+
         String encodedNewPassword = passwordEncoder.encode(request.newPassword());
 
         member.updatePassword(encodedNewPassword);
@@ -48,6 +50,12 @@ public class MemberService {
                 .orElseThrow(MemberNotFoundException::new);
 
         return GetMemberInfoResponse.from(member);
+    }
+
+    private void validatePasswordNotSameAsCurrent(UpdatePasswordRequest request) {
+        if (request.currentPassword().equals(request.newPassword())) {
+            throw new InvalidPasswordException("현재 비밀번호와 동일한 비밀번호로 변경할 수 없습니다.");
+        }
     }
 
     private void validateCurrentPassword(UpdatePasswordRequest request, Member member) {
