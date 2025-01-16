@@ -13,6 +13,6 @@ public class PostScheduler {
 
     @Scheduled(cron = "0 0/1 * * * ?")
     public void autoDeletePosts() {
-        postService.autoDeletePosts();
+        postService.deleteExpiredAutoDeletedPosts();
     }
 }

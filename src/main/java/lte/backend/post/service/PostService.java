@@ -95,9 +95,8 @@ public class PostService {
     }
 
     @Transactional
-    public void autoDeletePosts() {
-        LocalDateTime currentTime = LocalDateTime.now(clock);
-        postRepository.softDeleteExpiredAutoDeletedPosts(currentTime);
+    public void deleteExpiredAutoDeletedPosts() {
+        postRepository.softDeleteExpiredAutoDeletedPosts(LocalDateTime.now(clock));
     }
 
     private void validatePrivatePostAccess(Long memberId, Post post) {

@@ -2,7 +2,6 @@ package lte.backend.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lte.backend.auth.domain.AuthMember;
 import lte.backend.auth.domain.RefreshToken;
 import lte.backend.auth.dto.ReissueTokenDTO;
 import lte.backend.auth.dto.request.JoinRequest;
@@ -17,25 +16,27 @@ import lte.backend.member.domain.Member;
 import lte.backend.member.domain.MemberRole;
 import lte.backend.member.exception.MemberNotFoundException;
 import lte.backend.member.repository.MemberRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class AuthService implements UserDetailsService {
+public class AuthService {
 
-    public static final String CATEGORY_REFRESH = "refresh";
+    private static final String CATEGORY_REFRESH = "refresh";
 
+    private final Clock clock;
     private final JWTUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
     private final FollowRepository followRepository;
 
     @Transactional
@@ -83,12 +84,9 @@ public class AuthService implements UserDetailsService {
         return new ReissueTokenDTO(accessToken, newRefreshToken);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(MemberNotFoundException::new);
-
-        return new AuthMember(member);
+    @Transactional
+    public void removeExpiredTokens() {
+        refreshTokenRepository.deleteExpiredTokens(LocalDateTime.now(clock));
     }
 
     private void validateDuplicateNickname(String nickname) {
