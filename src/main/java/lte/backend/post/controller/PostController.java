@@ -52,8 +52,8 @@ public class PostController implements PostApi {
 
     @GetMapping("/{postId}")
     public ResponseEntity<GetPostResponse> getPost(
-            @AuthenticationPrincipal AuthMember authMember,
-            @PathVariable Long postId
+            @PathVariable Long postId,
+            @AuthenticationPrincipal AuthMember authMember
     ) {
         return ResponseEntity.ok(postService.getPost(authMember.getMemberId(), postId));
     }

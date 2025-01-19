@@ -32,8 +32,8 @@ public class CommentController implements CommentApi {
     @PutMapping("/{commentId}")
     public ResponseEntity<Void> update(
             @Validated @RequestBody UpdateCommentRequest request,
-            @PathVariable Long commentId,
-            @AuthenticationPrincipal AuthMember authMember
+            @AuthenticationPrincipal AuthMember authMember,
+            @PathVariable Long commentId
     ) {
         commentService.update(request, authMember.getMemberId(), commentId);
         return ResponseEntity.ok().build();

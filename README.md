@@ -76,3 +76,8 @@
 <summary>ERD</summary>
 <img src="ERD.png" alt="ERD Diagram" />
 </details>
+
+<details>
+<summary>API</summary>
+<p><a href="./docs/API.md">API 문서 보러가기</a></p>  
+</details>
