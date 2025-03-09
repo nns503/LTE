@@ -7,7 +7,7 @@ import lte.backend.member.domain.Member;
 public record GetMemberInfoResponse(
         @Schema(description = "회원 닉네임", example = "나테스트", requiredMode = Schema.RequiredMode.REQUIRED)
         String nickname,
-        @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg", nullable = true)
+        @Schema(description = "프로필 이미지 URL", example = "default_profile_image.jpg", nullable = true)
         String profileUrl
 ) {
     public static GetMemberInfoResponse from(Member member) {

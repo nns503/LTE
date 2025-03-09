@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lte.backend.auth.domain.AuthMember;
 import lte.backend.member.dto.request.UpdateNicknameRequest;
 import lte.backend.member.dto.request.UpdatePasswordRequest;
+import lte.backend.member.dto.request.UpdateProfileUrlRequest;
 import lte.backend.member.dto.response.GetMemberInfoResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +28,13 @@ public interface MemberApi {
     @PutMapping("/password")
     ResponseEntity<Void> updatePassword(
             @Validated @RequestBody UpdatePasswordRequest request,
+            @AuthenticationPrincipal AuthMember authMember
+    );
+
+    @Operation(summary = "프로필 이미지 수정 요청")
+    @PutMapping("/profileUrl")
+    ResponseEntity<Void> updateProfileUrl(
+            @Validated @RequestBody UpdateProfileUrlRequest request,
             @AuthenticationPrincipal AuthMember authMember
     );
 

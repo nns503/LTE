@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lte.backend.auth.domain.AuthMember;
 import lte.backend.member.dto.request.UpdateNicknameRequest;
 import lte.backend.member.dto.request.UpdatePasswordRequest;
+import lte.backend.member.dto.request.UpdateProfileUrlRequest;
 import lte.backend.member.dto.response.GetMemberInfoResponse;
 import lte.backend.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,15 @@ public class MemberController implements MemberApi {
             @AuthenticationPrincipal AuthMember authMember
     ) {
         memberService.updatePassword(request, authMember.getMemberId());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/profileUrl")
+    public ResponseEntity<Void> updateProfileUrl(
+            @Validated @RequestBody UpdateProfileUrlRequest request,
+            @AuthenticationPrincipal AuthMember authMember
+    ) {
+        memberService.updateProfileUrl(request, authMember.getMemberId());
         return ResponseEntity.ok().build();
     }
 

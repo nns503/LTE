@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandler));
 
         http.authorizeHttpRequests((auth)->auth
-                .requestMatchers("/api/join", "/api/login", "/api/refresh").permitAll()
+                .requestMatchers("/api/join", "/api/login", "/api/refresh", "/api/image").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated());
         http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);

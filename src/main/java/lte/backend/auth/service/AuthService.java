@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 public class AuthService {
 
     private static final String CATEGORY_REFRESH = "refresh";
+    private static final String DEFAULT_PROFILE_IMAGE = "default_profile_image.jpg";
 
     private final Clock clock;
     private final JWTUtil jwtUtil;
@@ -51,12 +52,19 @@ public class AuthService {
                 .username(username)
                 .password(passwordEncoder.encode(request.password()))
                 .nickname(request.nickname())
-                .profileUrl(request.profileUrl())
+                .profileUrl(getProfileUrlOrDefault(request.profileUrl()))
                 .role(MemberRole.ROLE_USER)
                 .isDeleted(false)
                 .build();
 
         memberRepository.save(member);
+    }
+
+    private String getProfileUrlOrDefault(String profileUrl) {
+        if (profileUrl == null || profileUrl.isBlank()) {
+            return DEFAULT_PROFILE_IMAGE;
+        }
+        return profileUrl;
     }
 
     @Transactional
@@ -110,7 +118,6 @@ public class AuthService {
     private void validateTokenCategory(String tokenValue) {
         if (!jwtUtil.getCategory(tokenValue).equals(CATEGORY_REFRESH)) {
             log.info("카테고리가 다른 토큰");
-
             throw new RefreshTokenException();
         }
     }
