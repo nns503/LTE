@@ -14,4 +14,6 @@ public @interface WithMockCustomMember {
     String username() default "test1234";
 
     MemberRole role() default MemberRole.ROLE_USER;
+
+    String profileUrl() default "test-profile";
 }

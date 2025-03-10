@@ -15,6 +15,7 @@ public class MockSecurityContextFactory implements WithSecurityContextFactory<Wi
                 .id(annotation.id())
                 .username(annotation.username())
                 .role(annotation.role())
+                .profileUrl(annotation.profileUrl())
                 .build();
         AuthMember authMember = new AuthMember(member);
 

@@ -4,6 +4,7 @@ import lte.backend.Integration.fixture.IntegrationFixture;
 import lte.backend.member.domain.Member;
 import lte.backend.member.dto.request.UpdateNicknameRequest;
 import lte.backend.member.dto.request.UpdatePasswordRequest;
+import lte.backend.member.dto.request.UpdateProfileUrlRequest;
 import lte.backend.member.dto.response.GetMemberInfoResponse;
 import lte.backend.util.IntegrationTest;
 import lte.backend.util.JsonMvcResponseMapper;
@@ -133,6 +134,24 @@ public class MemberIntegrationTest extends IntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockCustomMember
+    @DisplayName("OK : 프로필 사진 변경")
+    void updateProfileUrl() throws Exception {
+        UpdateProfileUrlRequest request = new UpdateProfileUrlRequest(
+                "new-profile"
+        );
+        String body = objectMapper.writeValueAsString(request);
+
+        mvc.perform(put("/api/members/profileUrl")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk());
+
+        Member member = memberRepository.findById(1L).orElseThrow(AssertionError::new);
+        assertThat(request.profileUrl()).isEqualTo(member.getProfileUrl());
     }
 
     @Test
