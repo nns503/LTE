@@ -153,8 +153,10 @@ public class PostIntegrationTest extends IntegrationTest {
     void getPosts_Default_DATE() throws Exception {
         List<Post> posts = savePosts(member);
         List<Post> descCreateAtPosts = posts.stream()
-                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .sorted(Comparator.comparing(Post::getCreatedAt, Comparator.reverseOrder())
+                        .thenComparing(Post::getId, Comparator.reverseOrder()))
                 .toList();
+
         List<PostDTO> postDTOS = toPostDTOS(descCreateAtPosts);
 
         MvcResult result = mvc.perform(get("/api/posts"))
@@ -171,7 +173,8 @@ public class PostIntegrationTest extends IntegrationTest {
     void getPosts_VIEW_COUNT() throws Exception {
         List<Post> posts = savePosts(member);
         List<Post> descCreateAtPosts = posts.stream()
-                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .sorted(Comparator.comparing(Post::getCreatedAt, Comparator.reverseOrder())
+                        .thenComparing(Post::getId, Comparator.reverseOrder()))
                 .toList();
         List<PostDTO> postDTOS = toPostDTOS(descCreateAtPosts);
 
