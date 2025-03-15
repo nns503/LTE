@@ -79,5 +79,5 @@
 
 <details>
 <summary>API</summary>
-<p><a href="./docs/API.md">API 문서 보러가기</a></p>  
+<p><a href="http://43.200.205.79:8080/swagger-ui/index.html">API 문서 보러가기</a></p>  
 </details>
