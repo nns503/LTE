@@ -8,7 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lte.backend.auth.repository.RefreshTokenRepository;
+import lte.backend.auth.repository.RedisRefreshTokenRepository;
 import lte.backend.auth.util.JWTUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -20,7 +20,7 @@ import java.io.IOException;
 public class CustomLogoutFilter extends GenericFilterBean {
 
     private final JWTUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -45,10 +45,10 @@ public class CustomLogoutFilter extends GenericFilterBean {
             return;
         }
 
-        if (!refreshTokenRepository.existsByToken(refreshToken)) {
+        if (!redisRefreshTokenRepository.exists(refreshToken)) {
             return;
         }
-        refreshTokenRepository.deleteByToken(refreshToken);
+        redisRefreshTokenRepository.delete(refreshToken);
 
         ResponseCookie cookie = ResponseCookie.from("refresh", "")
                 .httpOnly(true)

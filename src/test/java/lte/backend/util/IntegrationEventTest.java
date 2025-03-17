@@ -18,10 +18,10 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Sql(value = "classpath:data/member.sql",
-        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
 )
 @Sql(value = "classpath:data/cleanup.sql",
-        executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS
+        executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD
 )
 public class IntegrationEventTest {
 

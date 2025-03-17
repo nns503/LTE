@@ -2,10 +2,9 @@ package lte.backend.Integration.controller;
 
 import jakarta.servlet.http.Cookie;
 import lte.backend.Integration.fixture.IntegrationFixture;
-import lte.backend.auth.domain.RefreshToken;
 import lte.backend.auth.dto.request.JoinRequest;
 import lte.backend.auth.dto.request.LoginRequest;
-import lte.backend.auth.repository.RefreshTokenRepository;
+import lte.backend.auth.repository.RedisRefreshTokenRepository;
 import lte.backend.auth.util.JWTUtil;
 import lte.backend.follow.domain.Follow;
 import lte.backend.follow.repository.FollowRepository;
@@ -38,7 +37,7 @@ public class AuthIntegrationTest extends IntegrationTest {
     @Autowired
     private FollowRepository followRepository;
     @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     private Member member1;
 
@@ -100,9 +99,14 @@ public class AuthIntegrationTest extends IntegrationTest {
                 .andReturn();
 
         assertThat(result.getResponse().getHeader("Authorization")).isNull();
-        assertThat(Arrays.stream(result.getResponse().getCookies())
+
+        Cookie refreshCookie = Arrays.stream(result.getResponse().getCookies())
                 .filter(cookie -> "refresh".equals(cookie.getName()))
-                .findFirst()).isEmpty();
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("refresh 쿠키가 없습니다."));
+
+        assertThat(refreshCookie.getValue()).isEmpty();
+        assertThat(refreshCookie.getMaxAge()).isEqualTo(0);
     }
 
     @Test
@@ -110,11 +114,7 @@ public class AuthIntegrationTest extends IntegrationTest {
     void reissueToken() throws Exception {
         String accessToken = jwtUtil.createAccessToken(member1.getId(), member1.getUsername(), member1.getRole().name());
         String refreshToken = jwtUtil.createRefreshToken(member1.getId(), member1.getUsername(), member1.getRole().name());
-        refreshTokenRepository.save(RefreshToken.builder()
-                .member(new Member(member1.getId()))
-                .token(refreshToken)
-                .expiration(jwtUtil.getRefreshTokenExpiration(refreshToken))
-                .build());
+        redisRefreshTokenRepository.save(member1.getId(), refreshToken, jwtUtil.getRefreshTokenExpiration(refreshToken));
 
         Cookie requestCookie = toServletCookie(jwtUtil.createRefreshCookie(refreshToken));
         MvcResult result = mvc.perform(post("/api/refresh")

@@ -43,12 +43,16 @@ dependencies {
     // aws
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.2.1'
 
+    // redis
+    implementation('org.springframework.boot:spring-boot-starter-data-redis')
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
