@@ -15,7 +15,7 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("is_deleted = false")
 @SQLDelete(sql = "UPDATE members SET is_deleted = true WHERE id = ?")
 @Entity
-@Table(name = "MEMBERS")
+@Table(name = "members")
 public class Member extends BaseTimeEntity {
 
     @Id

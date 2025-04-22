@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Slf4j
@@ -129,17 +128,15 @@ public class JWTUtil {
                 .build();
     }
 
-
-    public LocalDateTime getRefreshTokenExpiration(String token) {
-        return Jwts.parser()
+    public long getRefreshTokenExpiration(String refreshToken) {
+        Date expiration = Jwts.parser()
                 .verifyWith(getSignKey())
                 .build()
-                .parseSignedClaims(token)
+                .parseSignedClaims(refreshToken)
                 .getPayload()
-                .getExpiration()
-                .toInstant()
-                .atZone(clock.getZone())
-                .toLocalDateTime();
+                .getExpiration();
+
+        return expiration.getTime() - System.currentTimeMillis();
     }
 
     private SecretKey getSignKey() {

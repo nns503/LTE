@@ -7,13 +7,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lte.backend.auth.domain.AuthMember;
-import lte.backend.auth.domain.RefreshToken;
 import lte.backend.auth.dto.request.LoginRequest;
-import lte.backend.auth.repository.RefreshTokenRepository;
+import lte.backend.auth.repository.RedisRefreshTokenRepository;
 import lte.backend.auth.util.JWTUtil;
 import lte.backend.common.exception.DefaultLTEException;
 import lte.backend.common.exception.UnauthorizedLTEException;
-import lte.backend.member.domain.Member;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +27,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -67,11 +65,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     private void saveRefreshTokenToRepository(Long userId, String refreshToken) {
-        refreshTokenRepository.save(RefreshToken.builder()
-                .member(new Member(userId))
-                .token(refreshToken)
-                .expiration(jwtUtil.getRefreshTokenExpiration(refreshToken))
-                .build());
+        redisRefreshTokenRepository.save(userId, refreshToken, jwtUtil.getRefreshTokenExpiration(refreshToken));
     }
 
     @Override
